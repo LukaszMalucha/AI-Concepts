@@ -3,7 +3,7 @@
 
 ### General Approach
 
-#### Environment Definition 
+#### Environment Definition  
 
 #### AI Architecture
 
