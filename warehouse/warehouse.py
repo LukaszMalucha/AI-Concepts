@@ -84,6 +84,11 @@ for i in range(1000):                                   ## repeat 100 times
 
 def route(starting_location, ending_location):
     route = [starting_location]
+    next_location = starting_location                               ## initiaite variable as a start location
+    while (next_location != ending_location):                       ## while loop as iterations amount not precised
+        starting_state = location_to_state[starting_location]       ## get the starting location index
+        next_state = np.argmax(Q[starting_state,])                  ## get a column corresponding tot hte highest value
+        
     
 
 
