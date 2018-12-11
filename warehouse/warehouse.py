@@ -46,7 +46,7 @@ R = np.array([[0,1,0,0,0,0,0,0,0,0,0,0],
               [0,0,0,1,0,0,1,0,0,0,0,1],
               [0,0,0,0,1,0,0,0,0,1,0,0],
               [0,0,0,0,0,1,0,0,1,0,1,0],
-              [0,0,0,0,0,0,0,0,0,1,0,1],
+              [0,0,0,0,0,0,0,0,0,1,200,1],
               [0,0,0,0,0,0,0,1,0,0,1,0]])
 
 
@@ -81,6 +81,10 @@ for i in range(1000):                                   ## repeat 100 times
 
 ########################################################## Going into Production
 
+## Inverse mapping helper function - state --> location
+state_to_location = {state: location for location, state in location_to_state.items()}
+
+
 
 def route(starting_location, ending_location):
     route = [starting_location]
@@ -88,11 +92,13 @@ def route(starting_location, ending_location):
     while (next_location != ending_location):                       ## while loop as iterations amount not precised
         starting_state = location_to_state[starting_location]       ## get the starting location index
         next_state = np.argmax(Q[starting_state,])                  ## get a column corresponding tot hte highest value
-        
-    
+        next_location = state_to_location[next_state]               ## get the corresponding letter of a location
+        route.append(next_location)                                 ## add the letter to the path list
+        starting_location = next_location                           ## update the start location
+    return route
 
 
-
+route("E","G")
 
 
 
