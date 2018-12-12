@@ -42,11 +42,11 @@ R = np.array([[0,1,0,0,0,0,0,0,0,0,0,0],
               [0,0,0,0,0,0,0,1,0,0,0,0],
               [0,0,0,0,0,0,0,0,1,0,0,0],
               [0,1,0,0,0,0,0,0,0,1,0,0],
-              [0,0,1,0,0,0,1000,1,0,0,0,0],
+              [0,0,1,0,0,0,0,1,0,0,0,0],
               [0,0,0,1,0,0,1,0,0,0,0,1],
               [0,0,0,0,1,0,0,0,0,1,0,0],
               [0,0,0,0,0,1,0,0,1,0,1,0],
-              [0,0,0,0,0,0,0,0,0,1,200,1],
+              [0,0,0,0,0,0,0,0,0,1,0,1],
               [0,0,0,0,0,0,0,1,0,0,1,0]])
 
 
@@ -54,28 +54,7 @@ R = np.array([[0,1,0,0,0,0,0,0,0,0,0,0],
 ####################################################### AI Solution Architecture
 
 
-########### Initializing the Q-Values - matrix of 12x12 zeros
 
-Q = np.array(np.zeros([12,12]))
-
-########################### Implementing Q-Learning process
-
-for i in range(1000):                                   ## repeat 100 times
-    current_state  = np.random.randint(0,12)            ## intitate in random spot
-    playable_actions = []                               ## possible actions for current state in a form of a list                   
-    for j in range(12):                                 ## For the eeach row
-        if R[current_state, j] > 0:                     ## if value in reward matrix[x,y] is '1'
-            playable_actions.append(j)                  ## add 'y' coordinate to playable actions 
-    next_state = np.random.choice(playable_actions)     ## play random action from the list as a next step
-            
-## BELMANN EQUATION    
-## reward for action we played in current state                          ## empty spot will be returned by argmax function
-    TD = R[current_state, next_state] +        gamma *      Q[next_state, np.argmax(Q[next_state, ])]        - Q[current_state, next_state]
-                                         ## discount factor
-                                                             ## Matrix of Q-values[correct row, column that has the highest value]
-
-    ## Update Q-Value by adding temporal difference times learning rate
-    Q[current_state, next_state] = Q[current_state, next_state] + alpha * TD 
 
 
 
@@ -87,6 +66,32 @@ state_to_location = {state: location for location, state in location_to_state.it
 
 
 def route(starting_location, ending_location):
+    R_new = np.copy(R)                                              ## create a copy of original matrix
+    ending_state = location_to_state[ending_location]               ## find the index for destination location
+    R_new[ending_state, ending_state] = 1000                        ## increase the reward for the destination location 
+
+    ########### Initializing the Q-Values - matrix of 12x12 zeros
+    
+    Q = np.array(np.zeros([12,12]))
+    
+    ########################### Implementing Q-Learning process
+    
+    for i in range(1000):                                   ## repeat 100 times
+        current_state  = np.random.randint(0,12)            ## intitate in random spot
+        playable_actions = []                               ## possible actions for current state in a form of a list                   
+        for j in range(12):                                 ## For the each row
+            if R_new[current_state, j] > 0:                     ## if value in reward matrix[x,y] is '1'
+                playable_actions.append(j)                  ## add 'y' coordinate to playable actions 
+        next_state = np.random.choice(playable_actions)     ## play random action from the list as a next step
+                
+    ## BELMANN EQUATION    
+    ## reward for action we played in current state                          ## empty spot will be returned by argmax function
+        TD = R_new[current_state, next_state] +        gamma *      Q[next_state, np.argmax(Q[next_state, ])]        - Q[current_state, next_state]
+                                             ## discount factor
+                                                                 ## Matrix of Q-values[correct row, column that has the highest value]
+
+    ## Update Q-Value by adding temporal difference times learning rate
+        Q[current_state, next_state] = Q[current_state, next_state] + alpha * TD                                         
     route = [starting_location]
     next_location = starting_location                               ## initiaite variable as a start location
     while (next_location != ending_location):                       ## while loop as iterations amount not precised
@@ -97,9 +102,14 @@ def route(starting_location, ending_location):
         starting_location = next_location                           ## update the start location
     return route
 
+### Pass through desired point
 
+def best_route(starting_location, intermediary_location, ending_location):
+    return route(starting_location, intermediary_location) + route(intermediary_location, ending_location)[1:]
+
+print()
 route("E","G")
-
+best_route("E","K","G")
 
 
 
