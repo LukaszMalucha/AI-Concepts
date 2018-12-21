@@ -12,7 +12,8 @@ import numpy as np
 
 class Environment(object):
         
-### Initializing environment variables
+### INITIALIZING ENVIRONMENT VARIABLES
+
     def __init__(self, optimal_temperature = (18.0, 24.0), initial_month = 0, initial_number_users = 10, initial_rate_data = 60):
         
         self.monthly_atmospheric_temperatures = [1.0, 5.0, 7.0, 10.0, 11.0, 20.0, 23.0, 24.0, 22.0, 10.0, 5.0, 1.0]  ## 12 months
@@ -57,10 +58,121 @@ class Environment(object):
         
 ### UPDATING ENVIRONMENT AFTER THE AI ACTION
 
-    def update_env(self, direction, energy_ai, month):
+    def update_env(self, direction, energy_ai, month):    ## direction of temperature change(1,-1), energy spent, actual month
     
 ### Getting Reward
+        
+        ## energy spent when there's no ai each minute
+        energy_noai = 0             
+        if (self.temperature_noai < self.optimal_temperature[0]):
+            energy_noai = self.optimal_temperature[0] - self.temperature_noai   ## energy for heating up
+            
+            self.temperature_noai = self.optimal_temperature[0]                 ## energy spent and temperature back to normal
+   
+        elif (self.temperature_noai > self.optimal_temperature[1]):             ## cooling down
+            energy_noai = self.temperature_noai - self.optimal_temperature[1]
+            
+            self.temperature_noai = self.optimal_temperature[1]
+        
+        
+        ## compute the reward - ai energy savings
+        self.reward = energy_noai - energy_ai
+        
+        ## scaling reward as recommended
+        self.reward = 1e-3 * self.reward
+        
+        
+### Get the next state
 
+        ## update atmospheric temperature - month specified in a method 
+        self.atmospheric_temperature = self.monthly_atmospheric_temperatures[month]
+        
+        ## update number of users (range -5 to +5)
+        self.current_number_users += np.random.randint(-self.max_update_users, self.max_update_users)
+        
+        ## make sure that users are between 10-100
+        if (self.current_number_users > self.max_number_users):
+            self.current_number_users = self.max_number_users
+        elif (self.current_number_users < self.min_number_users):
+            self.current_number_users = self.min_number_users  
+            
+        ## update data transmission rate    
+        self.current_rate_users += np.random.randint(-self.max_update_data, self.max_update_data)
+
+        if (self.current_rate_data > self.max_rate_data):
+            self.current_rate_data = self.max_rate_data
+        elif (self.current_rate_data < self.min_rate_data):
+            self.current_rate_data = self.min_rate_data  
+            
+            
+        ## compute the delta of Intransic Temperature - common part of ai and no-ai simulations
+        past_intrinsic_temperature = self.intrinsic_temperature
+        ## as per formula new temperature:
+        self.intrinsic_temperature = self.atmospheric_temperature + 1.25 * self.current_number_users + 1.25 * self.current_rate_data
+        
+        ## delta during the specific minute(iteration)
+        delta_intrinsic_temperature = self.intrinsic_temperature - past_intrinsic_temperature
+        
+        ## Delta of temperature caused by AI (direction - cooling down or heating up)
+        if (direction == -1):
+            delta_temperature_ai = -energy_ai
+        elif (direction == 1):
+            delta_temperature_ai = energy_ai
+            
+        ## Update new server temperature with AI
+        self.temperature_ai += delta_intrinsic_temperature + delta_temperature_ai
+        
+        ## Server with No AI
+        self.temperature_noai += delta_intrinsic_temperature
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+            
+
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+    
                 
         
         
