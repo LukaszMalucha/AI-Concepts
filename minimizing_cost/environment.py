@@ -97,7 +97,7 @@ class Environment(object):
             self.current_number_users = self.min_number_users  
             
         ## update data transmission rate    
-        self.current_rate_users += np.random.randint(-self.max_update_data, self.max_update_data)
+        self.current_rate_data += np.random.randint(-self.max_update_data, self.max_update_data)
 
         if (self.current_rate_data > self.max_rate_data):
             self.current_rate_data = self.max_rate_data
@@ -127,11 +127,46 @@ class Environment(object):
         
         
         
+### Getting ENDGAME - server goes to un-operational temperatures - below -20 or above 80
+    
+        if (self.temperature_ai < self.min_temperature):
+            ## check if in training mode
+            if (self.train == 1):
+                self.game_over = 1
+            ## if normal mode then force AI to  bring down temperature to optimal lower bound   
+            else:
+                self.temperature_ai = self.optimal_temperature[0]
+                self.total_energy_ai += self.optimal_temperature[0] - self.temperature_ai
+        elif (self.temperature_ai > self.max_temperature):
+            ## check if in training mode
+            if (self.train == 1):
+                self.game_over = 1
+            ## if normal mode then force AI to  bring down temperature to optimal lower bound   
+            else:
+                self.temperature_ai = self.optimal_temperature[1]
+                self.total_energy_ai += self.temperature_ai - self.optimal_temperature[1]         
+                
+### Updating scores
+
+        ## total energy spent by AI        
+        self.total_energy_ai += energy_ai
+        
+        ## energy send by no AI
+        self.total_energy_noai += energy_noai
         
         
+### Scaling the next state  - for neural network (normalization 0-1)
+
+        scaled_temperature_ai = (self.temperature_ai - self.min_temperature) / (self.max_temperature - self.min_temperature)
+        scaled_number_users = (self.current_number_users - self.min_number_users) / (self.max_number_users - self.min_number_users)
+        scaled_rate_data = (self.current_rate_data - self.min_rate_data ) / (self.max_rate_data - self.min_rate_data)
+                              
+        next_state = np.matrix([scaled_temperature_ai, scaled_number_users, scaled_rate_data ])        
         
         
+### Return the next state, the reward and game over
         
+        return next_state, self.reward, self.game_over
         
         
         
