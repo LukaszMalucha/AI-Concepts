@@ -60,6 +60,8 @@ train = True
 env.train = train
 model = brain.model
 
+## epoch - 5 month, timestep(iteration)- 1min
+
 if (env.train):
     for epoch in range(1, number_epochs):
         total_reward = 0 
@@ -67,9 +69,74 @@ if (env.train):
         new_month = np.random.randint(0, 12)
         env.reset(new_month = new_month)
         game_over = False
+        
         ## start training in specific state
         current_state, _, _ = env.observe()
-        timestep
+        
+        ## initialize variable to loop over iterations
+        timestep = 0
+        while ((not game_over) and timestep <= 5 * 30 * 24 * 60):
+    
+### playing the next action by Exploration  - 30% of a time
+            if np.random.rand() < epsilon:            ## TRICK - CREATE 30% OF A TIME
+                action = np.random.randint(0, number_actions)
+                if (action - direction_boundary < 0):
+                    direction = -1
+                else:
+                    direction = 1
+                energy_ai = abs(action - direction_boundary) * temperature_step   
+
+### playing the next action by DQN Inference - 70% of a time
+            else:
+                q_values = model.predict(current_state)
+                action = np.argmax(q_values[0])
+                # updating energy 
+                if (action - direction_boundary < 0):
+                    direction = -1
+                else:
+                    direction = 1
+                energy_ai = abs(action - direction_boundary) * temperature_step 
+
+### updating environment for the next state                                   ## index of the month
+            next_state, reward, game_over = env.update_env(direction, energy_ai, int(timestep/(30*24*60)))
+            total_reward += reward     
+            
+### storing transition in memory  
+            dqn.remember([current_state, action, reward, next_state], game_over)
+
+
+### Gathering two separate batches  of inputs and targets - AI and noAI
+
+            inputs, targets = dqn.get_batch(model, batch_size = batch_size)
+
+### Compute the Loss over the two whole batches of inputs and targets
+
+                
+            
+            
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
 
 
