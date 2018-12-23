@@ -27,7 +27,7 @@ class DQN(object):
             del self.memory[0]                                  
             
             
-### Building two batches of 10 inputs and 10 targets by extracting 10 transitions
+### Building two batches of * inputs and * targets by extracting 10 transitions
 
     def get_batch(self, model, batch_size = 10):                                ## get keras model
     
